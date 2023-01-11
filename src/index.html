@@ -12,73 +12,75 @@
         
         <section class="top-menu">
 
-            <!-- BRUSH -->
-            <section class="tool brush">
 
-                <section class="image-info">
+            <!-- Context menu -->
+            <section class="context-menu">
+
+                <div class="click">
+
+                    <p>Menu</p>
+
+                    <div>
+                        <span></span>
+                        <span></span>
+                    </div>
+
+                </div>
+
+                <ul>
+
+                    <li class="menu save-as">Save as</li>
+                    <li class="menu clear-canvas">Clear canvas</li>
+
+                </ul>
+
+            </section>
+
+
+            <!-- Available tools -->
+            <section class="tools-section">
+
+                <!-- BRUSH -->
+                <section class="tool brush">
 
                     <img class="active tool-img" />
                     <p>Brush</p>
 
                 </section>
 
-                <ul class="sizes">
 
-                    <li data-thick="3">
-                        <input name="brush" id="brush-three" type="radio" />
-                        <label for="brush-three">3</label>
-                    </li>
-
-                    <li data-thick="4">
-                        <input name="brush" id="brush-four" type="radio" />
-                        <label for="brush-four">4</label>
-                    </li>
-
-                    <li data-thick="5">
-                        <input name="brush" id="brush-five" type="radio" />
-                        <label for="brush-five">5</label>
-                    </li>
-
-                    <li data-thick="6">
-                        <input name="brush" id="brush-six" type="radio" />
-                        <label for="brush-six">6</label>
-                    </li>
-
-                </ul>
-
-            </section>
-
-
-            <!-- RECTANGLE -->
-            <section class="tool rectangle">
-    
-                <section class="image-info">
+                <!-- RECTANGLE -->
+                <section class="tool rectangle">
 
                     <img class="tool-img" />
                     <p>Rectangle</p>
 
                 </section>
 
-                <ul class="sizes">
+            </section>
 
-                    <li data-thick="3">
-                        <input name="rect" id="rect-three" type="radio" />
-                        <label for="rect-three">3</label>
-                    </li>
 
-                    <li data-thick="4">
-                        <input name="rect" id="rect-four" type="radio" />
-                        <label for="rect-four">4</label>
-                    </li>
+            <!-- Misc options -->
+            <section class="options-section">
 
-                    <li data-thick="5">
-                        <input data-thick="5" name="rect" id="rect-five" type="radio" />
-                        <label for="rect-five">5</label>
-                    </li>
+                <!-- CHANGE COLOR -->
+                <section class="option color-change">
 
-                </ul>
+                    <input type="color" />
+                    <label>Color: <span>#000000</span></label>
+
+                </section>
+
+                <!-- CHANGE THICKNESS -->
+                <section class="option thickness-change">
+
+                    <input class="thickness-input" type="range" min="2" max="10" step="1">
+                    <label>Thickness: <span>3</span></label>
+
+                </section>
 
             </section>
+
 
         </section>
 

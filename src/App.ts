@@ -9,6 +9,7 @@ export default class App {
     private state: AppState
 
     private thickenss: number
+    private color: string
 
     private CTX: CanvasRenderingContext2D
     private canvas: HTMLCanvasElement
@@ -20,6 +21,7 @@ export default class App {
         this.state = AppState.DRAW
 
         this.thickenss = 3
+        this.color = '#000000'
 
         this.canvas = canvas
         this.CTX = canvas.getContext('2d')
@@ -31,7 +33,7 @@ export default class App {
         const {offsetX, offsetY} = e
 
         this.CTX.beginPath()
-        this.CTX.fillStyle = '#000000'
+        this.CTX.fillStyle = this.color
         this.CTX.arc(offsetX, offsetY, this.thickenss, 0, 2 * Math.PI)
         this.CTX.fill()
     }
@@ -79,6 +81,16 @@ export default class App {
         this.state = state
     }
 
+    
+    public clearCanvas(): void {
+        this.CTX.clearRect(
+            0, 
+            0,
+            this.canvas.width,
+            this.canvas.height
+        )
+    }
+
 
     public getState(): AppState {
         return this.state
@@ -87,6 +99,11 @@ export default class App {
 
     public setThickness(num: number): void {
         this.thickenss = num
+    }
+
+
+    public setColor(color: string): void {
+        this.color = color
     }
 
 

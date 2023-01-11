@@ -1,3 +1,4 @@
+import { App } from "electron"
 import { AppState } from "./AppInterfaces"
 
 export type ScreenInfo = {
@@ -9,3 +10,5 @@ export type ToolObject = {
     state: AppState
     element: Element
 }
+
+export type OptionFunction = () => void
