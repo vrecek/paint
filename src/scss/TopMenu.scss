@@ -1,0 +1,58 @@
+@import './config';
+
+section.top-menu {
+    height: 85px;
+    width: 100%;
+    color: $clr-black;
+    background: $clr-whitel;
+    box-shadow: 0 0 10px $clr-black;
+    clip-path: inset(0px 0 -10px 0);
+    padding: .5em;
+    display: flex;
+
+    section.tool {
+        display: flex;
+        height: 100%;
+        width: max-content;
+        margin-right: 1em;
+
+        section.image-info {
+            margin-right: .5em;
+            @include Flex(c, c, c);
+    
+            img {
+                padding: .25em;
+                background: $clr-whited;
+                height: 40px;
+                margin-bottom: .25em;
+                cursor: pointer;
+    
+                &.active { background: $clr-bluel; }
+            }
+    
+            p {
+                font-size: .95rem;
+                font-weight: bold;
+            }
+        }
+
+        ul {
+            list-style: none;
+            @include Flex(sb, none, c);
+
+            li {
+                @include Flex(none, c);
+                font-size: .9rem;
+
+                input {
+                    margin-right: .25em;
+                }
+
+                label {
+                    pointer-events: none;
+                    font-weight: bold;
+                }
+            }
+        }
+    }
+}

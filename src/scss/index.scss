@@ -1,0 +1,19 @@
+@import './config';
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: $clr-black;
+    overflow: hidden;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+}
+
+canvas {
+    background: $clr-whited;
+}
