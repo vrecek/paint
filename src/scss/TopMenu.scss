@@ -117,6 +117,7 @@ section.top-menu {
         section.option {
             height: 100%;
             @include Flex(sb, none, c);
+            margin-left: 1.5em;
 
             label {
                 font-size: 1.1rem;
@@ -133,6 +134,41 @@ section.top-menu {
             }
         }
 
+        section.toggle-fill {
+            width: 5%;
+            min-width: 70px;
+
+            div {
+                border-radius: 1em;
+                background: $clr-whited;
+                width: 100%;
+                max-width: 50px;
+                height: 20px;
+                cursor: pointer;
+                margin: 0 auto;
+                position: relative;
+
+                span {
+                    position: absolute;
+                    transition: .5s;
+                    top: 50%;
+                    translate: 0 -50%;
+                    @include Rectangle(20px);
+                    border-radius: 50%;
+
+                    &.true { 
+                        background: $clr-blued; 
+                        right: 0;
+                    }
+        
+                    &.false { 
+                        background: $clr-red; 
+                        left: 0;
+                    }
+                }
+            }
+        }
+
         section.color-change {
             input {
                 width: 100%;
@@ -141,7 +177,6 @@ section.top-menu {
 
         section.thickness-change {
             width: 12%;
-            margin-left: 1.5em;
 
             input {
                 width: 100%;

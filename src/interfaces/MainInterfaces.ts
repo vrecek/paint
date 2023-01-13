@@ -1,4 +1,4 @@
-import { App } from "electron"
+import Dropdown from "../util/Client"
 import { AppState } from "./AppInterfaces"
 
 export type ScreenInfo = {
@@ -12,3 +12,5 @@ export type ToolObject = {
 }
 
 export type OptionFunction = () => void
+
+export type InitHelperFunc = (value: string) => void 

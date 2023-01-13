@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, screen, session } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, screen, session } from 'electron';
 import { ScreenInfo } from './interfaces/MainInterfaces';
 import fs from 'fs'
 import path from 'path'
@@ -49,6 +49,19 @@ const createWindow = (): void => {
         return files.map(
             file => fs.readFileSync(`${srcPath}/${file}`, {encoding: 'base64'})
         )
+    })
+
+    // Save file
+    ipcMain.handle('save', async (e, path: string, base64: string) => {
+        await fs.promises.writeFile(path, base64, {encoding: 'base64'})
+    })
+
+    // Open save box
+    ipcMain.handle('saveDialog', () => {
+        const savePath: string = process.env?.HOME ?? process.env?.USERPROFILE ?? './'
+        const defaultPath: string = `${savePath}/image.png`
+
+        return dialog.showSaveDialog({defaultPath})
     })
 };
 
