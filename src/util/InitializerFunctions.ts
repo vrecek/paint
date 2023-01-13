@@ -86,8 +86,11 @@ const initializeMenuActions = (app: App): void => {
     // Open save menu and save the canvas
     listOptions[0].onclick = () => menuAction(dd, () => app.saveCanvas())
 
+    // Load image to canvas
+    listOptions[1].onclick = () => menuAction(dd, () => app.loadCanvas())
+
     // Clear canvas
-    listOptions[1].onclick = () => menuAction(dd, () => app.clearCanvas())
+    listOptions[2].onclick = () => menuAction(dd, () => app.clearCanvas())
 }
 
 // Possibility of toggling fill mode

@@ -18,9 +18,13 @@ export type DrawPos = {
     y: number
 }
 
-export type DialogResult = {
+export type SaveDialogResult = {
     canceled: boolean
     filePath: string
+}
+
+export interface OpenDialogResult extends Omit<SaveDialogResult, 'filePath'> {
+    filePaths: string[]
 }
 
 export type AppEvent = (app: App, e: MouseEvent) => void

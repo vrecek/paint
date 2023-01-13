@@ -1,4 +1,4 @@
-import { AppState, DialogResult, Handlers, RectangleValues } from "./interfaces/AppInterfaces";
+import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult } from "./interfaces/AppInterfaces";
 
 const invoke = window.require('electron').ipcRenderer.invoke;
 
@@ -280,12 +280,37 @@ export default class App {
 
                                
         // Open save dialog from the main process and get path
-        const {canceled, filePath}: DialogResult = await this.invoke('saveDialog')
+        const {canceled, filePath}: SaveDialogResult = await this.invoke('saveDialog')
 
         if (canceled) return
 
         // Invoke save action from the main process
         await this.invoke('save', filePath, data)
+    }
+
+    // Load image to canvas
+    public async loadCanvas(): Promise<void> {
+
+        // Open dialog from the main process and get the file path
+        const {canceled, filePaths}: OpenDialogResult = await this.invoke('openDialog'),
+               fullPath: string = filePaths[0]
+
+
+        if (canceled) return
+
+        // If file is not an image, return
+        const ext: string = fullPath.slice(fullPath.lastIndexOf('.') + 1)
+        if (['png', 'jpg', 'jpeg'].every(x => x !== ext)) return
+
+
+        // Read image data as base64
+        const imageData: string = await this.invoke('open', fullPath)
+
+
+        // Convert base64 to image element and draw it on canvas
+        const img: HTMLImageElement = new Image()
+        img.onload = (): void => this.CTX.drawImage(img, 0, 0)
+        img.src = `data:image/${ext};base64,${imageData}`
     }
 
     // Clear whole canvas

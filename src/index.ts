@@ -63,6 +63,20 @@ const createWindow = (): void => {
 
         return dialog.showSaveDialog({defaultPath})
     })
+
+    // Open open box
+    ipcMain.handle('openDialog', () => {
+        const defaultPath: string = process.env?.HOME ?? process.env?.USERPROFILE ?? './'
+
+        return dialog.showOpenDialog({defaultPath})
+    })
+
+    // Open file
+    ipcMain.handle('open', async (e, path: string) => {
+        if (!fs.promises.stat(path)) return ''
+
+        return await fs.promises.readFile(path, {encoding: 'base64'})
+    })
 };
 
 
