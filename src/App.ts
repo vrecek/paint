@@ -1,4 +1,4 @@
-import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult } from "./interfaces/AppInterfaces";
+import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult, DrawValues, RectsT } from "./interfaces/AppInterfaces";
 
 const invoke = window.require('electron').ipcRenderer.invoke;
 
@@ -16,6 +16,8 @@ export default class App {
     private canvas: HTMLCanvasElement
 
     private rectValues: RectangleValues
+    private drawValues: DrawValues
+    private rects: RectsT
 
     private background: string
 
@@ -38,6 +40,13 @@ export default class App {
             h: 0,
             startPos: null
         }
+        this.drawValues = []
+        this.rects = {
+            startPos: null,
+            lastPos: [0, 0],
+            w: 0,
+            h: 0
+        }
 
         this.background = 'rgb(221, 221, 221)'
     }
@@ -45,13 +54,23 @@ export default class App {
 
 
 
-    private clearRectValues(): void {
-        this.rectValues = {
-            lastPos: [0, 0],
-            w: 0,
-            h: 0,
-            startPos: null
-        }
+    private clearValues(type: 'rect' | 'draw'): void {
+        if (type === 'rect')
+            this.rects = {
+                startPos: null,
+                lastPos: [0, 0],
+                w: 0,
+                h: 0
+            }
+            // this.rectValues = {
+            //     lastPos: [0, 0],
+            //     w: 0,
+            //     h: 0,
+            //     startPos: null
+            // }
+
+        else if (type === 'draw')
+            this.drawValues = []
     }
 
     private setClearedBgColor(x: number, y: number, w: number, h: number): void {
@@ -67,14 +86,30 @@ export default class App {
     public draw(e: MouseEvent): void {
         const {offsetX, offsetY} = e
 
-        // Draw a line of circles
-        // Set to the current color value
-        // More thickness === bigger line will be drawn
+        // Push coordinates in to the array
+        this.drawValues.push([offsetX, offsetY])
+
+        // Return if there are not exactly 2 values in the array
+        if (this.drawValues.length !== 2) return
+
+
+        const [last, current] = this.drawValues
+        
+        // Draw a line using beginning and current coordinates
         this.CTX.beginPath()
-        this.CTX.fillStyle = this.color
-        this.CTX.arc(offsetX, offsetY, this.thickness, 0, 2 * Math.PI)
-        this.CTX.fill()
+        this.CTX.moveTo(last[0], last[1])
+        this.CTX.lineTo(current[0], current[1])
+
+        // Set color and thickness
+        this.CTX.strokeStyle = this.color
+        this.CTX.lineWidth = this.thickness
+
+        this.CTX.stroke()
+
+        // Remove last coordinates from the array
+        this.drawValues.shift()
     }
+
 
     // Rectangle tool
     public rectangle(e: MouseEvent): void {
@@ -217,7 +252,8 @@ export default class App {
         this.canvas.onmouseleave = (e: MouseEvent): void => {
             this.isHolded = false
 
-            this.clearRectValues()
+            this.clearValues('rect')
+            this.clearValues('draw')
 
             leaveFunc(this, e)
         }
@@ -226,7 +262,8 @@ export default class App {
         this.canvas.onmouseup = (e: MouseEvent): void => {
             this.isHolded = false
 
-            this.clearRectValues()
+            this.clearValues('rect')
+            this.clearValues('draw')
 
             upFunc(this, e)
         }

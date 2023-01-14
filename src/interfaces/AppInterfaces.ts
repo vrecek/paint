@@ -39,9 +39,18 @@ export type Handlers = {
 
 export type XY = [number, number]
 
-export type RectangleValues = {
+export type Positions = {
     startPos: XY | null
     lastPos: XY
+}
+
+export type RectangleValues = Positions & {
     w: number
     h: number
 }
+
+export type RectsT = Positions & {
+    w: number,
+    h: number
+}
+export type DrawValues = number[][]
