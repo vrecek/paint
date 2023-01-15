@@ -26,7 +26,8 @@ const markRubberCursor = (e: MouseEvent, thickness: number): void => {
         top: `${clientY - thick / 2}px`,
         width: `${thick}px`,
         height: `${thick}px`,
-        background: 'red',
+        background: '#efbfff',
+        border: '1px solid #7d10a1',
         pointerEvents: 'none'
 
     } as CSSStyleDeclaration)

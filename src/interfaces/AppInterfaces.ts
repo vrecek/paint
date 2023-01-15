@@ -44,13 +44,19 @@ export type Positions = {
     lastPos: XY
 }
 
-export type RectangleValues = Positions & {
+export interface RectangleValues extends Omit<Positions, 'lastPos'> {
     w: number
     h: number
+    maxW: number
+    maxH: number
 }
+// export interface RectangleValues extends Omit<Positions, 'lastPos'> {
+//     w: number
+//     h: number
+//     maxW: number
+//     maxH: number
+// }
 
-export type RectsT = Positions & {
-    w: number,
-    h: number
-}
 export type DrawValues = number[][]
+
+export type RectCoords = [number, number][][]

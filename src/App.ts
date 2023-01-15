@@ -1,4 +1,4 @@
-import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult, DrawValues, RectsT } from "./interfaces/AppInterfaces";
+import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult, DrawValues, RectCoords } from "./interfaces/AppInterfaces";
 
 const invoke = window.require('electron').ipcRenderer.invoke;
 
@@ -15,9 +15,8 @@ export default class App {
     private CTX: CanvasRenderingContext2D
     private canvas: HTMLCanvasElement
 
-    private rectValues: RectangleValues
     private drawValues: DrawValues
-    private rects: RectsT
+    private rectValues: RectangleValues
 
     private background: string
 
@@ -34,18 +33,13 @@ export default class App {
         this.canvas = canvas
         this.CTX = canvas.getContext('2d')
 
+        this.drawValues = []
         this.rectValues = {
-            lastPos: [0, 0],
+            startPos: null,
             w: 0,
             h: 0,
-            startPos: null
-        }
-        this.drawValues = []
-        this.rects = {
-            startPos: null,
-            lastPos: [0, 0],
-            w: 0,
-            h: 0
+            maxH: 0,
+            maxW: 0
         }
 
         this.background = 'rgb(221, 221, 221)'
@@ -56,18 +50,13 @@ export default class App {
 
     private clearValues(type: 'rect' | 'draw'): void {
         if (type === 'rect')
-            this.rects = {
+            this.rectValues = {
                 startPos: null,
-                lastPos: [0, 0],
                 w: 0,
-                h: 0
+                h: 0,
+                maxH: 0,
+                maxW: 0
             }
-            // this.rectValues = {
-            //     lastPos: [0, 0],
-            //     w: 0,
-            //     h: 0,
-            //     startPos: null
-            // }
 
         else if (type === 'draw')
             this.drawValues = []
@@ -110,11 +99,9 @@ export default class App {
         this.drawValues.shift()
     }
 
-
-    // Rectangle tool
+    // Rectangle tool 
     public rectangle(e: MouseEvent): void {
         const {offsetX, offsetY} = e
-
 
         // Get starting position
         // If it is null get current mouse position and save to startPos
@@ -122,11 +109,10 @@ export default class App {
             this.rectValues.startPos = [offsetX, offsetY]
 
 
-        // Destructure starting position, last position and width + height
+        // Destructure starting position, biggest size and width + height
         const [startX, startY] = this.rectValues.startPos
-        const [lastX, lastY] = this.rectValues.lastPos
         const {w, h} = this.rectValues
-
+        const [maxW, maxH] = [this.rectValues.maxW, this.rectValues.maxH]
 
 
         // Variables for clearing rect 
@@ -138,34 +124,34 @@ export default class App {
 
             // If height is more than 0, start clearing from bottom
             cY = startY - this.thickness
-            cH = h + this.thickness * 2
+            cH = maxH + this.thickness * 2
 
         } else {
 
             // Otherwise start clearing from top
             cY = startY + this.thickness
-            cH = h - this.thickness * 2
+            cH = maxH - this.thickness * 2
         }
 
         if (w > 0) {
 
             // If width is more than 0, start clearing from right
             cX = startX - this.thickness
-            cW = w + this.thickness * 2
+            cW = maxW + this.thickness * 2
 
         } else {
 
             // Otherwise start clearing from left
             cX = startX + this.thickness
-            cW = w - this.thickness * 2
+            cW = maxW - this.thickness * 2
         }
 
+  
         // Clear previously drawed rectangle
         this.CTX.clearRect(cX, cY, cW, cH)
 
         // Remove the transparent BG
         this.setClearedBgColor(cX, cY, cW, cH)
-
 
 
         // Start drawing a new rectangle
@@ -191,27 +177,20 @@ export default class App {
         }
 
         
+        // Determine new rectangle size
+        const newW: number = offsetX - startX
+        const newH: number = offsetY - startY
 
-        // Determine new rectangle width
-        // If cursor's X position is greater than last X position === mouse is moved to right
-        // If cursor's X position is smaller than last X position === mouse is moved to left
-        if (offsetX > lastX) 
-            this.rectValues.w++
-        else if (offsetX < lastX)
-            this.rectValues.w--
-        
-            
-        // Determine new rectangle height
-        // If cursor's Y position is greater than last Y position === mouse is moved to bottom
-        // If cursor's Y position is smaller than last Y position === mouse is moved to top
-        if (offsetY > lastY) 
-            this.rectValues.h++
-        else if (offsetY < lastY)
-            this.rectValues.h--
-        
+        this.rectValues.w = newW
+        this.rectValues.h = newH
 
-        // Save last (actual) position
-        this.rectValues.lastPos = [offsetX, offsetY]
+
+        // Update biggest width and height
+        if ((w > 0 && newW > w) || (w < 0 && newW < w)) 
+            this.rectValues.maxW = newW
+
+        if ((h > 0 && newH > h) || (h < 0 && newH < h))
+            this.rectValues.maxH = newH
     }
 
     // Rubber tool
