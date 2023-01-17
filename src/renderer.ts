@@ -7,7 +7,11 @@ import { leaveFunc, onFunc, refreshFunc, upFunc } from './util/EventFunctions';
 import { initalizeTools, initializeColorChange, initializeFillToggler, initializeMenuActions, initializeThicknessChange } from './util/InitializerFunctions';
 import { markRubberCursor } from './util/Tools/Tool_Rubber_Functions';
 
-
+/*
+    Available tools:
+        mousemove: Brush, Rectangle, Line, Rubber
+        click: Fill, Rubber
+*/
 
 const main = async () => {
     const canvas: HTMLCanvasElement = document.querySelector('canvas'),
@@ -19,6 +23,7 @@ const main = async () => {
         'brush.png',
         'rectangle.png',
         'line.png',
+        'fill.png',
         'rubber.png'
     ])
     
@@ -51,7 +56,6 @@ const main = async () => {
         // If rubber is selected, create an indicator
         if (STATE === 'RUBBER')
             markRubberCursor(e, APP.getThickness())
-
 
 
         if (!APP.getIsHolded()) return

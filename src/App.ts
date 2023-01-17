@@ -1,4 +1,4 @@
-import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult, DrawValues, LineValues, ClearEnum } from "./interfaces/AppInterfaces";
+import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult, DrawValues, LineValues, ClearEnum, FillCondition } from "./interfaces/AppInterfaces";
 
 const invoke = window.require('electron').ipcRenderer.invoke;
 
@@ -19,7 +19,7 @@ export default class App {
     private rectValues: RectangleValues
     private lineValues: LineValues
 
-    private data: ImageData
+    private data: ImageData | null
 
     private background: string
 
@@ -80,6 +80,57 @@ export default class App {
         this.clearValues('line')
 
         this.data = this.CTX.getImageData(0, 0, this.canvas.width, this.canvas.height)
+    }
+
+    private rgbToHex([r, g, b]: Uint8ClampedArray): string {
+        return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}000000`.slice(0, 7)
+    }
+
+    private fillLoops(loopVar: number, cursorX: number, currentColor: string, type: 'inc' | 'dec'): void {
+        // Determine main loop condition
+        // If type is 'dec' decrement value and loop till it isn't 0 (move to top)
+        // If type is 'inc' increment value and loop till it isn't more than canvas height (move to bottom)
+        let fillCondition: FillCondition = type === 'dec'
+            ? () => { loopVar--; return loopVar > 0 }
+            : () => { loopVar++; return loopVar < this.CTX.canvas.height }
+
+
+        // Start from clicked X position and move vertically. 
+        // Loop through left and right pixels and determine which should be colored
+        while ( fillCondition() ) {
+            let left: number = cursorX,
+                right: number = cursorX
+
+
+            // Get pixel's color and break if its different than clicked color
+            const clr = this.rgbToHex(this.CTX.getImageData(cursorX, loopVar, 1, 1).data)
+            if (clr !== currentColor) break
+
+
+            // Get left pixel and break if its color is different than clicked color
+            while (left--) {
+                const clr = this.rgbToHex(this.CTX.getImageData(left, loopVar, 1, 1).data)
+                if (clr !== currentColor) break
+            }
+
+            // Get right pixel and break if its color is different than clicked color
+            while (right++) {
+                const clr = this.rgbToHex(this.CTX.getImageData(right, loopVar, 1, 1).data)
+                if (clr !== currentColor) break
+            }
+
+
+            // Color the determined line of pixels
+            this.CTX.fillStyle = this.color
+            this.CTX.beginPath()
+            this.CTX.rect(
+                left,
+                loopVar,
+                Math.abs(right - left),
+                1
+            )
+            this.CTX.fill()
+        }
     }
 
 
@@ -205,6 +256,21 @@ export default class App {
         )
     }
 
+    // Fill tool
+    public fill(e: MouseEvent): void {
+        const {offsetX, offsetY} = e
+
+        // Get clicked pixel's color
+        const currentColor = this.rgbToHex(this.CTX.getImageData(offsetX, offsetY, 1, 1).data)
+
+        let top: number = offsetY + 1
+        let bottom: number = offsetY
+
+        // Start the loops: fill from middle to top, and fill from middle to bottom
+        this.fillLoops(top, offsetX, currentColor, 'dec')
+        this.fillLoops(bottom, offsetX, currentColor, 'inc')
+    }
+
 
 
     // Handle various events
@@ -322,6 +388,7 @@ export default class App {
         const {width, height} = this.canvas
 
         this.setClearedBgColor(0, 0, width, height)
+        this.data = this.CTX.getImageData(0, 0, this.canvas.width, this.canvas.height)
     }
 
 

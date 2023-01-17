@@ -5,13 +5,15 @@ export enum AppState {
     DRAW = 'DRAW',
     RECTANGLE = 'RECTANGLE',
     RUBBER = 'RUBBER',
-    LINE = 'LINE'
+    LINE = 'LINE',
+    FILL = 'FILL'
 }
 
 export const AppStateArray: AppState[] = [
     AppState.DRAW,
     AppState.RECTANGLE,
     AppState.LINE,
+    AppState.FILL,
     AppState.RUBBER
 ]
 
@@ -52,6 +54,8 @@ export interface RectangleValues extends Omit<Positions, 'lastPos'> {
     w: number
     h: number
 }
+
+export type FillCondition = () => boolean
 
 export type LineValues = [number, number] | null
 

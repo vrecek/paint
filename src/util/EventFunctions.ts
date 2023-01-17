@@ -18,6 +18,11 @@ const onFunc = (app: App, e: MouseEvent): void => {
     // Use rubber tool
     if (state === 'RUBBER')
         app.clear(e)
+
+        
+    // Fill the canvas
+    if (state === 'FILL') 
+        app.fill(e)
 }
 
 // Function that will be called when the user release left mouse button
