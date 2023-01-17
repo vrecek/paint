@@ -18,19 +18,22 @@ const main = async () => {
     await APP.loadImages([
         'brush.png',
         'rectangle.png',
+        'line.png',
         'rubber.png'
     ])
     
     
-    // Set canvas to fullscreen
+    // Get screen size
     const screen: ScreenInfo = await APP.invoke<ScreenInfo>('screen')
     const {width, height} = screen
 
-    APP.setCanvasSize(width, height - 85)
+
+    // Minus top bar height 
+    const canvasHeight: number = height - 85
 
 
-    // Set canvas background to white
-    APP.setBackground(0, 0, width, height - 85, 'rgb(221, 221, 221)')
+    APP.setCanvasSize(width, canvasHeight)
+    APP.setBackground(0, 0, width, canvasHeight, 'rgb(221, 221, 221)')
 
 
     // Initialize all clickable elements
@@ -60,6 +63,10 @@ const main = async () => {
 
             case 'RECTANGLE':
                 APP.rectangle(e)
+            break;
+
+            case 'LINE':
+                APP.line(e)
             break;
 
             case 'RUBBER':

@@ -1,4 +1,4 @@
-import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult, DrawValues, RectCoords } from "./interfaces/AppInterfaces";
+import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult, DrawValues, LineValues, ClearEnum } from "./interfaces/AppInterfaces";
 
 const invoke = window.require('electron').ipcRenderer.invoke;
 
@@ -17,6 +17,9 @@ export default class App {
 
     private drawValues: DrawValues
     private rectValues: RectangleValues
+    private lineValues: LineValues
+
+    private data: ImageData
 
     private background: string
 
@@ -31,16 +34,17 @@ export default class App {
         this.fillMode = false
 
         this.canvas = canvas
-        this.CTX = canvas.getContext('2d')
+        this.CTX = canvas.getContext('2d', {willReadFrequently: true})
 
         this.drawValues = []
         this.rectValues = {
             startPos: null,
             w: 0,
-            h: 0,
-            maxH: 0,
-            maxW: 0
+            h: 0
         }
+        this.lineValues = null
+
+        this.data = null
 
         this.background = 'rgb(221, 221, 221)'
     }
@@ -48,18 +52,19 @@ export default class App {
 
 
 
-    private clearValues(type: 'rect' | 'draw'): void {
+    private clearValues(type: ClearEnum): void {
         if (type === 'rect')
             this.rectValues = {
                 startPos: null,
                 w: 0,
-                h: 0,
-                maxH: 0,
-                maxW: 0
+                h: 0
             }
 
         else if (type === 'draw')
             this.drawValues = []
+
+        else if (type === 'line')
+            this.lineValues = null
     }
 
     private setClearedBgColor(x: number, y: number, w: number, h: number): void {
@@ -68,6 +73,15 @@ export default class App {
         this.CTX.fillStyle = this.background
         this.CTX.fill()
     }
+
+    private mouseFinishAction(): void {
+        this.clearValues('rect')
+        this.clearValues('draw')
+        this.clearValues('line')
+
+        this.data = this.CTX.getImageData(0, 0, this.canvas.width, this.canvas.height)
+    }
+
 
 
 
@@ -111,53 +125,21 @@ export default class App {
 
         // Destructure starting position, biggest size and width + height
         const [startX, startY] = this.rectValues.startPos
-        const {w, h} = this.rectValues
-        const [maxW, maxH] = [this.rectValues.maxW, this.rectValues.maxH]
 
 
-        // Variables for clearing rect 
-        let cX: number, cY: number, cW: number, cH: number
-
-        // Multiply thickness by 2 to clear rectangle as well as borders by getting total width/height
-
-        if (h > 0) {
-
-            // If height is more than 0, start clearing from bottom
-            cY = startY - this.thickness
-            cH = maxH + this.thickness * 2
-
-        } else {
-
-            // Otherwise start clearing from top
-            cY = startY + this.thickness
-            cH = maxH - this.thickness * 2
-        }
-
-        if (w > 0) {
-
-            // If width is more than 0, start clearing from right
-            cX = startX - this.thickness
-            cW = maxW + this.thickness * 2
-
-        } else {
-
-            // Otherwise start clearing from left
-            cX = startX + this.thickness
-            cW = maxW - this.thickness * 2
-        }
-
-  
-        // Clear previously drawed rectangle
-        this.CTX.clearRect(cX, cY, cW, cH)
-
-        // Remove the transparent BG
-        this.setClearedBgColor(cX, cY, cW, cH)
+        // Load previous canvas data
+        this.CTX.putImageData(this.data, 0, 0)
 
 
         // Start drawing a new rectangle
-        // Start at starting position, set actual width and height
+        // Start at starting position, then set an actual width and height
         this.CTX.beginPath()
-        this.CTX.rect(startX, startY, w, h)
+        this.CTX.rect(
+            this.rectValues.startPos[0], 
+            this.rectValues.startPos[1], 
+            this.rectValues.w, 
+            this.rectValues.h
+        )
 
 
         if (this.fillMode) {
@@ -178,41 +160,49 @@ export default class App {
 
         
         // Determine new rectangle size
-        const newW: number = offsetX - startX
-        const newH: number = offsetY - startY
+        this.rectValues.w = offsetX - startX
+        this.rectValues.h = offsetY - startY
+    }
 
-        this.rectValues.w = newW
-        this.rectValues.h = newH
+    // Line tool
+    public line(e: MouseEvent): void {
+        const {offsetX, offsetY} = e
+        
+        // Set starting position
+        if (!this.lineValues)
+            this.lineValues = [offsetX, offsetY]
 
 
-        // Update biggest width and height
-        if ((w > 0 && newW > w) || (w < 0 && newW < w)) 
-            this.rectValues.maxW = newW
+        // Load previous canvas state
+        this.CTX.putImageData(this.data, 0, 0)
 
-        if ((h > 0 && newH > h) || (h < 0 && newH < h))
-            this.rectValues.maxH = newH
+
+        // Set color and thickness
+        this.CTX.strokeStyle = this.color
+        this.CTX.lineWidth = this.thickness
+
+
+        // Draw current line
+        this.CTX.beginPath()
+        this.CTX.moveTo(...this.lineValues)
+        this.CTX.lineTo(offsetX, offsetY)
+        this.CTX.stroke()
     }
 
     // Rubber tool
     public clear(e: MouseEvent): void {
         const {offsetX, offsetY} = e
 
-        // Set to fill style to the canvas current BG
-        this.CTX.beginPath()
-        this.CTX.fillStyle = this.background
-
         // More thickness is, more space will be cleared
         const thick: number = this.thickness * 10
 
-        // Center clearing field to the cursor's tip
-        this.CTX.rect(
+        // Center the clearing field to the cursor's tip
+        this.setClearedBgColor(
             offsetX - thick / 2, 
             offsetY - thick / 2, 
             thick, 
             thick
         )
-
-        this.CTX.fill()
     }
 
 
@@ -231,8 +221,7 @@ export default class App {
         this.canvas.onmouseleave = (e: MouseEvent): void => {
             this.isHolded = false
 
-            this.clearValues('rect')
-            this.clearValues('draw')
+            this.mouseFinishAction()
 
             leaveFunc(this, e)
         }
@@ -241,8 +230,7 @@ export default class App {
         this.canvas.onmouseup = (e: MouseEvent): void => {
             this.isHolded = false
 
-            this.clearValues('rect')
-            this.clearValues('draw')
+            this.mouseFinishAction()
 
             upFunc(this, e)
         }
@@ -288,11 +276,11 @@ export default class App {
 
 
 
-    // Save canvas as PNG
+    // Save canvas as JPEG
     public async saveCanvas(): Promise<void> {
         // Get canvas data in base64
-        const data = this.canvas.toDataURL('image/png')
-                                .replace('data:image/png;base64,', '')
+        const data = this.canvas.toDataURL('image/jpeg')
+                                .replace('data:image/jpeg;base64,', '')
 
                                
         // Open save dialog from the main process and get path
@@ -333,14 +321,6 @@ export default class App {
     public clearCanvas(): void {
         const {width, height} = this.canvas
 
-        this.CTX.clearRect(
-            0, 
-            0,
-            width,
-            height
-        )
-
-        // Remove the transparent BG
         this.setClearedBgColor(0, 0, width, height)
     }
 
@@ -382,6 +362,9 @@ export default class App {
 
         // Remove the transparent BG
         this.setClearedBgColor(0, 0, w, h)
+
+        // Get canvas data
+        this.CTX.getImageData(0, 0, this.canvas.width, this.canvas.height)
     }
 
 

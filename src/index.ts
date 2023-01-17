@@ -59,7 +59,7 @@ const createWindow = (): void => {
     // Open save box
     ipcMain.handle('saveDialog', () => {
         const savePath: string = process.env?.HOME ?? process.env?.USERPROFILE ?? './'
-        const defaultPath: string = `${savePath}/image.png`
+        const defaultPath: string = `${savePath}/image.jpeg`
 
         return dialog.showSaveDialog({defaultPath})
     })
