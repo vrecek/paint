@@ -6,12 +6,14 @@ export enum AppState {
     RECTANGLE = 'RECTANGLE',
     RUBBER = 'RUBBER',
     LINE = 'LINE',
-    FILL = 'FILL'
+    FILL = 'FILL',
+    CIRCLE = 'CIRCLE'
 }
 
 export const AppStateArray: AppState[] = [
     AppState.DRAW,
     AppState.RECTANGLE,
+    AppState.CIRCLE,
     AppState.LINE,
     AppState.FILL,
     AppState.RUBBER
@@ -34,7 +36,7 @@ export interface OpenDialogResult extends Omit<SaveDialogResult, 'filePath'> {
 export type AppEvent = (app: App, e: MouseEvent) => void
 export type RefreshEvent = (app: App) => void
 
-export type ClearEnum = 'rect' | 'draw' | 'line'
+export type ClearEnum = 'rect' | 'draw' | 'line' | 'circle'
 
 export type Handlers = {
     refreshFunc: RefreshEvent
@@ -58,5 +60,7 @@ export interface RectangleValues extends Omit<Positions, 'lastPos'> {
 export type FillCondition = () => boolean
 
 export type LineValues = [number, number] | null
+
+export type CircleValues = LineValues
 
 export type DrawValues = number[][]

@@ -22,6 +22,7 @@ const main = async () => {
     await APP.loadImages([
         'brush.png',
         'rectangle.png',
+        'circle.png',
         'line.png',
         'fill.png',
         'rubber.png'
@@ -75,6 +76,10 @@ const main = async () => {
 
             case 'RUBBER':
                 APP.clear(e)
+            break;
+
+            case 'CIRCLE':
+                APP.circle(e)
             break;
 
             default: break;

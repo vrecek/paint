@@ -1,4 +1,4 @@
-import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult, DrawValues, LineValues, ClearEnum, FillCondition } from "./interfaces/AppInterfaces";
+import { AppState, SaveDialogResult, Handlers, RectangleValues, OpenDialogResult, DrawValues, LineValues, ClearEnum, FillCondition, CircleValues } from "./interfaces/AppInterfaces";
 
 const invoke = window.require('electron').ipcRenderer.invoke;
 
@@ -17,6 +17,7 @@ export default class App {
 
     private drawValues: DrawValues
     private rectValues: RectangleValues
+    private circleValues: CircleValues
     private lineValues: LineValues
 
     private data: ImageData[]
@@ -43,6 +44,7 @@ export default class App {
             h: 0
         }
         this.lineValues = null
+        this.circleValues = null
 
         this.data = []
 
@@ -65,6 +67,9 @@ export default class App {
 
         else if (type === 'line')
             this.lineValues = null
+
+        else if (type === 'circle')
+            this.circleValues = null
     }
 
     private setClearedBgColor(x: number, y: number, w: number, h: number): void {
@@ -78,6 +83,7 @@ export default class App {
         this.clearValues('rect')
         this.clearValues('draw')
         this.clearValues('line')
+        this.clearValues('circle')
     }
 
     private rgbToHex([r, g, b]: Uint8ClampedArray): string {
@@ -180,7 +186,7 @@ export default class App {
             this.rectValues.startPos = [offsetX, offsetY]
 
 
-        // Destructure starting position, biggest size and width + height
+        // Destructure starting position
         const [startX, startY] = this.rectValues.startPos
 
 
@@ -275,6 +281,47 @@ export default class App {
         // Start the loops: fill from middle to top, and fill from middle to bottom
         this.fillLoops(top, offsetX, currentColor, 'dec')
         this.fillLoops(bottom, offsetX, currentColor, 'inc')
+    }
+
+    // Circle tool
+    public circle(e: MouseEvent): void {
+        const {offsetX, offsetY} = e
+
+
+        // Get starting position
+        // If it is null get current mouse position and save to startPos
+        if (!this.circleValues)
+            this.circleValues = [offsetX, offsetY]
+        
+
+        const [startX, startY] = this.circleValues
+
+
+        // Load previous canvas data
+        this.CTX.putImageData(this.data[0], 0, 0)
+
+
+        const radius: number = Math.abs(offsetX - startX)
+
+    
+        this.CTX.beginPath()
+        this.CTX.arc(startX, startY, radius, 0, Math.PI * 2)
+        
+        if (this.fillMode) {
+
+            // If fillMode is ON, fill with current color
+
+            this.CTX.fillStyle = this.color
+            this.CTX.fill()
+
+        } else {
+
+            // If fillMode is OFF, set border thickness and its color
+            
+            this.CTX.lineWidth = this.thickness
+            this.CTX.strokeStyle = this.color
+            this.CTX.stroke()
+        }
     }
 
 
