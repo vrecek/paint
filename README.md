@@ -16,6 +16,7 @@ Available options: <br>
 
 # Install
 - Clone repository <br>
+- Run `npm install` <br>
 - Run `npm run package` <br>
 - Copy src/images directory to out/paint* <br>
 - Run paint.exe
