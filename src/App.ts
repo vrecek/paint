@@ -19,7 +19,7 @@ export default class App {
     private rectValues: RectangleValues
     private lineValues: LineValues
 
-    private data: ImageData | null
+    private data: ImageData[]
 
     private background: string
 
@@ -44,7 +44,7 @@ export default class App {
         }
         this.lineValues = null
 
-        this.data = null
+        this.data = []
 
         this.background = 'rgb(221, 221, 221)'
     }
@@ -78,8 +78,6 @@ export default class App {
         this.clearValues('rect')
         this.clearValues('draw')
         this.clearValues('line')
-
-        this.data = this.CTX.getImageData(0, 0, this.canvas.width, this.canvas.height)
     }
 
     private rgbToHex([r, g, b]: Uint8ClampedArray): string {
@@ -133,6 +131,14 @@ export default class App {
         }
     }
 
+    private addCanvasSnapshot(): void {
+        // Save current canvas data. Maximum snapshots: 5
+        this.data.unshift(this.CTX.getImageData(0, 0, this.canvas.width, this.canvas.height))
+
+        if (this.data.length > 5)
+            this.data.pop()
+    }
+
 
 
 
@@ -179,7 +185,7 @@ export default class App {
 
 
         // Load previous canvas data
-        this.CTX.putImageData(this.data, 0, 0)
+        this.CTX.putImageData(this.data[0], 0, 0)
 
 
         // Start drawing a new rectangle
@@ -225,7 +231,7 @@ export default class App {
 
 
         // Load previous canvas state
-        this.CTX.putImageData(this.data, 0, 0)
+        this.CTX.putImageData(this.data[0], 0, 0)
 
 
         // Set color and thickness
@@ -297,6 +303,8 @@ export default class App {
             this.isHolded = false
 
             this.mouseFinishAction()
+
+            this.addCanvasSnapshot()
 
             upFunc(this, e)
         }
@@ -388,9 +396,18 @@ export default class App {
         const {width, height} = this.canvas
 
         this.setClearedBgColor(0, 0, width, height)
-        this.data = this.CTX.getImageData(0, 0, this.canvas.width, this.canvas.height)
+        this.addCanvasSnapshot()
     }
 
+
+
+    // Reverse changes
+    public reverseChanges(): void {
+        if (!this.data?.[1]) return
+
+        this.CTX.putImageData(this.data[1], 0, 0)
+        this.data.shift()
+    }
 
 
 
@@ -430,8 +447,8 @@ export default class App {
         // Remove the transparent BG
         this.setClearedBgColor(0, 0, w, h)
 
-        // Get canvas data
-        this.CTX.getImageData(0, 0, this.canvas.width, this.canvas.height)
+        // Save initial canvas data
+        this.data.unshift(this.CTX.getImageData(0, 0, w, h))
     }
 
 

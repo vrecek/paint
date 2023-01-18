@@ -89,8 +89,11 @@ const initializeMenuActions = (app: App): void => {
     // Load image to canvas
     listOptions[1].onclick = () => menuAction(dd, () => app.loadCanvas())
 
+    // Reverse actions
+    listOptions[2].onclick = () => menuAction(dd, () => app.reverseChanges())
+
     // Clear canvas
-    listOptions[2].onclick = () => menuAction(dd, () => app.clearCanvas())
+    listOptions[3].onclick = () => menuAction(dd, () => app.clearCanvas())
 }
 
 // Possibility of toggling fill mode
