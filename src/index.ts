@@ -44,7 +44,7 @@ const createWindow = (): void => {
 
     // Get images
     ipcMain.handle('images', (e, files: string[]) => {
-        const srcPath: string = path.join(__dirname, '../', '../', 'src', 'images')
+        const srcPath: string = path.join(__dirname, '../', '../', '../', '../', 'images')
 
         return files.map(
             file => fs.readFileSync(`${srcPath}/${file}`, {encoding: 'base64'})
@@ -59,7 +59,7 @@ const createWindow = (): void => {
     // Open save box
     ipcMain.handle('saveDialog', () => {
         const savePath: string = process.env?.HOME ?? process.env?.USERPROFILE ?? './'
-        const defaultPath: string = `${savePath}/image.jpeg`
+        const defaultPath: string = `${savePath}/image.png`
 
         return dialog.showSaveDialog({defaultPath})
     })

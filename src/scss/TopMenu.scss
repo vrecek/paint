@@ -11,6 +11,7 @@ section.top-menu {
     section.context-menu {
         height: 100%;
         width: 15%;
+        min-width: 200px;
         margin-right: 2em;
         position: relative;
 
@@ -177,6 +178,7 @@ section.top-menu {
 
         section.thickness-change {
             width: 12%;
+            min-width: 110px;
 
             input {
                 width: 100%;

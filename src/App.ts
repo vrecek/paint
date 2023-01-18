@@ -378,6 +378,7 @@ export default class App {
             return result
 
         }catch (err) {
+            console.log(err)
             throw `Event -${event}- does not exist in the Main process`
         }
     }
@@ -397,11 +398,11 @@ export default class App {
 
 
 
-    // Save canvas as JPEG
+    // Save canvas as PNG
     public async saveCanvas(): Promise<void> {
         // Get canvas data in base64
-        const data = this.canvas.toDataURL('image/jpeg')
-                                .replace('data:image/jpeg;base64,', '')
+        const data = this.canvas.toDataURL('image/png')
+                                .replace('data:image/png;base64,', '')
 
                                
         // Open save dialog from the main process and get path

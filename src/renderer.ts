@@ -9,7 +9,7 @@ import { markRubberCursor } from './util/Tools/Tool_Rubber_Functions';
 
 /*
     Available tools:
-        mousemove: Brush, Rectangle, Line, Rubber
+        mousemove: Brush, Rectangle, Line, Rubber, Circle
         click: Fill, Rubber
 */
 
