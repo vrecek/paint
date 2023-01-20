@@ -107,22 +107,21 @@ export default class App {
 
 
             // Get pixel's color and break if its different than clicked color
-            const clr = this.rgbToHex(this.CTX.getImageData(cursorX, loopVar, 1, 1).data)
-            if (clr !== currentColor) break
+            if (this.rgbToHex(this.CTX.getImageData(cursorX, loopVar, 1, 1).data) !== currentColor) 
+                break
 
 
             // Get left pixel and break if its color is different than clicked color
-            while (left--) {
-                const clr = this.rgbToHex(this.CTX.getImageData(left, loopVar, 1, 1).data)
-                if (clr !== currentColor) break
-            }
+            while (left--) 
+                if (this.rgbToHex(this.CTX.getImageData(left, loopVar, 1, 1).data) !== currentColor) 
+                    break
+            
 
             // Get right pixel and break if its color is different than clicked color
-            while (right++) {
-                const clr = this.rgbToHex(this.CTX.getImageData(right, loopVar, 1, 1).data)
-                if (clr !== currentColor) break
-            }
-
+            while (right++) 
+                if (this.rgbToHex(this.CTX.getImageData(right, loopVar, 1, 1).data) !== currentColor) 
+                    break
+            
 
             // Color the determined line of pixels
             this.CTX.fillStyle = this.color
